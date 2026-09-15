@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/dataset.schema.json",
+  "id": "nbp-eur-pln-daily",
+  "name": "NBP EUR/PLN Daily Exchange Rate",
+  "description": "255 days of historical daily midpoint exchange rates for the Euro against the Polish Zloty, sourced directly from the National Bank of Poland.",
+  "asset_class": "macro",
+  "schema": [
+    { "column": "date", "type": "TIMESTAMP" },
+    { "column": "rate", "type": "FLOAT32" }
+  ],
+  "etl": {
+    "engine": "duckdb-sql",
+    "source_api": "http://api.nbp.pl/api/exchangerates/rates/a/eur/last/255/?format=json",
+    "script": "WITH raw_data AS (SELECT UNNEST(rates) AS rate_record FROM read_json_auto('http://api.nbp.pl/api/exchangerates/rates/a/eur/last/255/?format=json')) SELECT CAST(rate_record.effectiveDate AS TIMESTAMP) AS date, CAST(rate_record.mid AS FLOAT32) AS rate FROM raw_data;"
+  }
+}

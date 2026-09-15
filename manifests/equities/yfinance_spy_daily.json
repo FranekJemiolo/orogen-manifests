@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/dataset.schema.json",
+  "id": "yfinance-spy-daily",
+  "name": "S&P 500 ETF (SPY) 10-Year Daily History",
+  "description": "10 years of daily OHLCV bar data for the SPDR S&P 500 ETF Trust, extracted from Yahoo Finance via Pyodide with CORS proxy routing.",
+  "asset_class": "equities",
+  "schema": [
+    { "column": "Date", "type": "TIMESTAMP" },
+    { "column": "Open", "type": "FLOAT64" },
+    { "column": "High", "type": "FLOAT64" },
+    { "column": "Low", "type": "FLOAT64" },
+    { "column": "Close", "type": "FLOAT64" },
+    { "column": "Volume", "type": "FLOAT64" }
+  ],
+  "etl": {
+    "engine": "pyodide-python",
+    "source_api": "https://query2.finance.yahoo.com/v8/finance/chart/SPY",
+    "requirements": ["pandas", "yfinance", "pyarrow", "requests"],
+    "script": "import yfinance as yf\nimport pandas as pd\nimport requests\nimport pyarrow as pa\nimport pyarrow.ipc as ipc\nimport urllib.parse\nfrom js import Uint8Array\n\nclass CorsProxySession(requests.Session):\n    def __init__(self, proxy_url='https://corsproxy.io/?url='):\n        super().__init__()\n        self.proxy_url = proxy_url\n\n    def request(self, method, url, *args, **kwargs):\n        if not url.startswith(self.proxy_url):\n            encoded_url = urllib.parse.quote(url, safe='')\n            url = f\"{self.proxy_url}{encoded_url}\"\n        headers = kwargs.get('headers', {})\n        if 'User-Agent' in headers:\n            del headers['User-Agent']\n        kwargs['headers'] = headers\n        return super().request(method, url, *args, **kwargs)\n\ndef fetch_and_convert_spy():\n    proxy_session = CorsProxySession()\n    ticker = yf.Ticker('SPY', session=proxy_session)\n    df = ticker.history(period='10y')\n    df = df.reset_index()\n    df.columns = [str(col).strip() for col in df.columns]\n    if pd.api.types.is_datetime64tz_dtype(df['Date']):\n        df['Date'] = df['Date'].dt.tz_localize(None)\n    table = pa.Table.from_pandas(df)\n    sink = pa.BufferOutputStream()\n    with ipc.RecordBatchStreamWriter(sink, table.schema) as writer:\n        writer.write_table(table)\n    return Uint8Array.new(sink.getvalue().to_pybytes())\n\nresult_arrow = fetch_and_convert_spy()\n"
+  }
+}

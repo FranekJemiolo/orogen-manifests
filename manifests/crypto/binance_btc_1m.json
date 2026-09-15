@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/dataset.schema.json",
+  "id": "binance-btc-1m",
+  "name": "Binance BTC/USDT 1-Minute Candlesticks",
+  "description": "High-volume 1-minute OHLCV k-line data for BTC/USDT, paginated with timestamp shifting and rate-limit backoffs.",
+  "asset_class": "alternative",
+  "schema": [
+    { "column": "timestamp", "type": "TIMESTAMP" },
+    { "column": "open", "type": "FLOAT64" },
+    { "column": "high", "type": "FLOAT64" },
+    { "column": "low", "type": "FLOAT64" },
+    { "column": "close", "type": "FLOAT64" },
+    { "column": "volume", "type": "FLOAT64" }
+  ],
+  "etl": {
+    "engine": "pyodide-python",
+    "source_api": "https://api.binance.com/api/v3/klines",
+    "requirements": ["pyarrow", "requests"],
+    "script": "import time\nimport json\nimport requests\nimport pyarrow as pa\nimport pyarrow.ipc as ipc\nfrom js import Uint8Array\n\ndef fetch_binance_klines(symbol='BTCUSDT', interval='1m', total_candles=43200):\n    base_url = 'https://api.binance.com/api/v3/klines'\n    limit = 1000\n    all_candles = []\n    # End timestamp is now in ms\n    end_time = int(time.time() * 1000)\n    start_time = end_time - (total_candles * 60 * 1000)\n    current_start = start_time\n\n    # Paginate through Binance 1000-candle batches\n    while current_start < end_time and len(all_candles) < total_candles:\n        params = {\n            'symbol': symbol,\n            'interval': interval,\n            'startTime': current_start,\n            'limit': min(limit, total_candles - len(all_candles))\n        }\n        resp = requests.get(base_url, params=params)\n        if resp.status_code == 429:\n            # Rate limit backoff\n            time.sleep(2.0)\n            continue\n        if resp.status_code != 200:\n            break\n\n        data = resp.json()\n        if not data:\n            break\n\n        all_candles.extend(data)\n        last_close_time = data[-1][6] # Close time in ms\n        current_start = last_close_time + 1\n        \n        # Respect Binance rate limits between pagination calls\n        time.sleep(0.5)\n\n    # Extract typed columns\n    timestamps = [int(row[0]) for row in all_candles]\n    opens = [float(row[1]) for row in all_candles]\n    highs = [float(row[2]) for row in all_candles]\n    lows = [float(row[3]) for row in all_candles]\n    closes = [float(row[4]) for row in all_candles]\n    volumes = [float(row[5]) for row in all_candles]\n\n    table = pa.Table.from_arrays(\n        [\n            pa.array(timestamps, type=pa.timestamp('ms')),\n            pa.array(opens, type=pa.float64()),\n            pa.array(highs, type=pa.float64()),\n            pa.array(lows, type=pa.float64()),\n            pa.array(closes, type=pa.float64()),\n            pa.array(volumes, type=pa.float64()),\n        ],\n        names=['timestamp', 'open', 'high', 'low', 'close', 'volume']\n    )\n\n    sink = pa.BufferOutputStream()\n    with ipc.RecordBatchStreamWriter(sink, table.schema) as writer:\n        writer.write_table(table)\n\n    return Uint8Array.new(sink.getvalue().to_pybytes())\n\nresult_arrow = fetch_binance_klines()\n"
+  }
+}
