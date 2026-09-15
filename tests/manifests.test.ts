@@ -113,5 +113,69 @@ describe('Orogen Data Connectors Manifest Test Suite', () => {
     expect(manifest.etl.script).toContain('to_timestamp(CAST(date AS BIGINT))');
     expect(manifest.etl.script).toContain('FLOAT64');
   });
+
+  it('validates ECB EUR/USD reference rate manifest (ecb_eur_usd.json)', () => {
+    const manifest = loadManifest('manifests/fx/ecb_eur_usd.json');
+    const valid = validate(manifest);
+    expect(validate.errors).toBeNull();
+    expect(valid).toBe(true);
+    expect(manifest.asset_class).toBe('fx');
+    expect(manifest.etl.engine).toBe('duckdb-sql');
+    expect(manifest.etl.script).toContain('CAST(period AS TIMESTAMP)');
+    expect(manifest.etl.script).toContain('FLOAT32');
+  });
+
+  it('validates FRED ICE BofA US High Yield Index OAS manifest (fred_ice_bofa_hy.json)', () => {
+    const manifest = loadManifest('manifests/fixed_income/fred_ice_bofa_hy.json');
+    const valid = validate(manifest);
+    expect(validate.errors).toBeNull();
+    expect(valid).toBe(true);
+    expect(manifest.asset_class).toBe('fixed_income');
+    expect(manifest.etl.engine).toBe('duckdb-sql');
+    expect(manifest.etl.script).toContain('BAMLH0A0HYM2');
+    expect(manifest.etl.script).toContain('{{FRED_API_KEY}}');
+    expect(manifest.etl.script).toContain('{{CORS_PROXY}}');
+    expect(manifest.etl.script).toContain("NULLIF(obs.value, '.')");
+  });
+
+  it('validates World Bank Global GDP manifest (wb_global_gdp.json)', () => {
+    const manifest = loadManifest('manifests/macro/wb_global_gdp.json');
+    const valid = validate(manifest);
+    expect(validate.errors).toBeNull();
+    expect(valid).toBe(true);
+    expect(manifest.asset_class).toBe('macro');
+    expect(manifest.etl.engine).toBe('duckdb-sql');
+    expect(manifest.etl.script).toContain('UNNEST');
+    expect(manifest.etl.script).toContain('NY.GDP.MKTP.CD');
+    expect(manifest.etl.script).toContain('FLOAT64');
+  });
+
+  it('validates World Bank Pink Sheet commodities manifest (wb_pink_sheet.json)', () => {
+    const manifest = loadManifest('manifests/commodities/wb_pink_sheet.json');
+    const valid = validate(manifest);
+    expect(validate.errors).toBeNull();
+    expect(valid).toBe(true);
+    expect(manifest.asset_class).toBe('commodities');
+    expect(manifest.etl.engine).toBe('pyodide-python');
+    expect(manifest.etl.requirements).toContain('requests');
+    expect(manifest.etl.requirements).toContain('pandas');
+    expect(manifest.etl.requirements).toContain('pyarrow');
+    expect(manifest.etl.script).toContain('commodity_index');
+    expect(manifest.etl.script).toContain('energy_index');
+    expect(manifest.etl.script).toContain('Uint8Array.new');
+  });
+
+  it('validates Open-Meteo Brazil precipitation manifest (open_meteo_brazil_rain.json)', () => {
+    const manifest = loadManifest('manifests/alternative/open_meteo_brazil_rain.json');
+    const valid = validate(manifest);
+    expect(validate.errors).toBeNull();
+    expect(valid).toBe(true);
+    expect(manifest.asset_class).toBe('alternative');
+    expect(manifest.etl.engine).toBe('duckdb-sql');
+    expect(manifest.etl.script).toContain('UNNEST(daily.time)');
+    expect(manifest.etl.script).toContain('UNNEST(daily.precipitation_sum)');
+    expect(manifest.etl.script).toContain('FLOAT');
+  });
 });
+
 

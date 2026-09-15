@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/dataset.schema.json",
+  "id": "ecb-eur-usd",
+  "name": "ECB EUR/USD Euro Foreign Exchange Reference Rate",
+  "description": "Daily official EUR/USD foreign exchange reference rates directly from the European Central Bank (ECB) Data Portal API get_observations endpoint.",
+  "asset_class": "fx",
+  "schema": [
+    { "column": "period", "type": "TIMESTAMP" },
+    { "column": "value", "type": "FLOAT32" }
+  ],
+  "etl": {
+    "engine": "duckdb-sql",
+    "source_api": "https://data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A/get_observations?format=jsondata",
+    "script": "SELECT CAST(period AS TIMESTAMP) AS period, CAST(value AS FLOAT32) AS value FROM read_json_auto('https://data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A/get_observations?format=jsondata');"
+  }
+}

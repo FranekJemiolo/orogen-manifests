@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/dataset.schema.json",
+  "id": "wb-global-gdp",
+  "name": "World Bank US & EU Gross Domestic Product (GDP)",
+  "description": "Annual Gross Domestic Product in current US dollars (Indicator NY.GDP.MKTP.CD) for the US and European Union from the World Bank Open Data API.",
+  "asset_class": "macro",
+  "schema": [
+    { "column": "date", "type": "TIMESTAMP" },
+    { "column": "gdp_usd", "type": "FLOAT64" }
+  ],
+  "etl": {
+    "engine": "duckdb-sql",
+    "source_api": "http://api.worldbank.org/v2/country/US;EU/indicator/NY.GDP.MKTP.CD?format=json&per_page=1000",
+    "script": "WITH records AS (SELECT UNNEST(from_json(json, '[{\"date\": \"VARCHAR\", \"value\": \"DOUBLE\"}]')) AS r FROM read_json_auto('http://api.worldbank.org/v2/country/US;EU/indicator/NY.GDP.MKTP.CD?format=json&per_page=1000') WHERE json LIKE '[%') SELECT CAST(strptime(r.date, '%Y') AS TIMESTAMP) AS date, CAST(r.value AS FLOAT64) AS gdp_usd FROM records WHERE r.value IS NOT NULL;"
+  }
+}

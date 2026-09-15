@@ -1,8 +1,30 @@
 {
   "version": "1.0.0",
-  "generated_at": "2026-09-15T21:17:41.393Z",
-  "total_datasets": 8,
+  "generated_at": "2026-09-15T21:32:31.601Z",
+  "total_datasets": 13,
   "datasets": [
+    {
+      "id": "open-meteo-brazil-rain",
+      "name": "Open-Meteo Brazil Minas Gerais Historical Precipitation",
+      "description": "10 years of daily precipitation sum data for Minas Gerais, Brazil (primary coffee production basin) for agricultural drought modeling and commodity futures backtesting.",
+      "asset_class": "alternative",
+      "columns": [
+        {
+          "name": "time",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "precipitation_sum",
+          "type": "FLOAT32"
+        }
+      ],
+      "etl": {
+        "engine": "duckdb-sql",
+        "source_api": "https://archive-api.open-meteo.com/v1/archive?latitude=-18.5122&longitude=-44.5550&start_date=2014-01-01&end_date=2024-01-01&daily=precipitation_sum&timezone=America%2FSao_Paulo",
+        "requirements": []
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/alternative/open_meteo_brazil_rain.json"
+    },
     {
       "id": "pl-outdoor-furniture-pricing",
       "name": "Warsaw Outdoor Furniture Retail Pricing Tracker",
@@ -33,6 +55,44 @@
         ]
       },
       "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/alternative/pl_outdoor_furniture_pricing.json"
+    },
+    {
+      "id": "wb-pink-sheet",
+      "name": "World Bank Monthly Pink Sheet Commodity Price Indices",
+      "description": "Monthly global commodity price benchmark indices covering aggregate commodities, energy, industrial metals, and agriculture from the World Bank Pink Sheet.",
+      "asset_class": "commodities",
+      "columns": [
+        {
+          "name": "date",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "commodity_index",
+          "type": "FLOAT64"
+        },
+        {
+          "name": "energy_index",
+          "type": "FLOAT64"
+        },
+        {
+          "name": "metals_index",
+          "type": "FLOAT64"
+        },
+        {
+          "name": "agriculture_index",
+          "type": "FLOAT64"
+        }
+      ],
+      "etl": {
+        "engine": "pyodide-python",
+        "source_api": "https://raw.githubusercontent.com/datasets/commodity-prices/master/data/commodity-prices.csv",
+        "requirements": [
+          "requests",
+          "pandas",
+          "pyarrow"
+        ]
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/commodities/wb_pink_sheet.json"
     },
     {
       "id": "binance-btc-1m",
@@ -141,6 +201,28 @@
       "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/equities/yfinance_spy_daily.json"
     },
     {
+      "id": "fred-ice-bofa-hy",
+      "name": "ICE BofA US High Yield Index Option-Adjusted Spread",
+      "description": "Daily Option-Adjusted Spread (OAS) of the ICE BofA US High Yield Index (Series BAMLH0A0HYM2) measuring corporate credit risk premia over spot Treasury curves.",
+      "asset_class": "fixed_income",
+      "columns": [
+        {
+          "name": "date",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "spread",
+          "type": "FLOAT32"
+        }
+      ],
+      "etl": {
+        "engine": "duckdb-sql",
+        "source_api": "https://api.stlouisfed.org/fred/series/observations?series_id=BAMLH0A0HYM2&file_type=json",
+        "requirements": []
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/fixed_income/fred_ice_bofa_hy.json"
+    },
+    {
       "id": "sec-edgar-aapl",
       "name": "Apple Inc. (AAPL) SEC EDGAR 10-Q/10-K Fundamentals",
       "description": "Standardized quarterly corporate fundamentals (NetIncomeLoss and Revenues) extracted directly from the US SEC EDGAR XBRL company facts API with User-Agent header injection.",
@@ -169,6 +251,28 @@
         ]
       },
       "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/fundamentals/sec_edgar_aapl.json"
+    },
+    {
+      "id": "ecb-eur-usd",
+      "name": "ECB EUR/USD Euro Foreign Exchange Reference Rate",
+      "description": "Daily official EUR/USD foreign exchange reference rates directly from the European Central Bank (ECB) Data Portal API get_observations endpoint.",
+      "asset_class": "fx",
+      "columns": [
+        {
+          "name": "period",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "value",
+          "type": "FLOAT32"
+        }
+      ],
+      "etl": {
+        "engine": "duckdb-sql",
+        "source_api": "https://data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A/get_observations?format=jsondata",
+        "requirements": []
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/fx/ecb_eur_usd.json"
     },
     {
       "id": "fred-t10y2y-spread",
@@ -213,6 +317,28 @@
         "requirements": []
       },
       "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/macro/nbp_eur_pln.json"
+    },
+    {
+      "id": "wb-global-gdp",
+      "name": "World Bank US & EU Gross Domestic Product (GDP)",
+      "description": "Annual Gross Domestic Product in current US dollars (Indicator NY.GDP.MKTP.CD) for the US and European Union from the World Bank Open Data API.",
+      "asset_class": "macro",
+      "columns": [
+        {
+          "name": "date",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "gdp_usd",
+          "type": "FLOAT64"
+        }
+      ],
+      "etl": {
+        "engine": "duckdb-sql",
+        "source_api": "http://api.worldbank.org/v2/country/US;EU/indicator/NY.GDP.MKTP.CD?format=json&per_page=1000",
+        "requirements": []
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/macro/wb_global_gdp.json"
     },
     {
       "id": "wiki-recession-views",

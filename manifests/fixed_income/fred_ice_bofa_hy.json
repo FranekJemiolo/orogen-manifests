@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/dataset.schema.json",
+  "id": "fred-ice-bofa-hy",
+  "name": "ICE BofA US High Yield Index Option-Adjusted Spread",
+  "description": "Daily Option-Adjusted Spread (OAS) of the ICE BofA US High Yield Index (Series BAMLH0A0HYM2) measuring corporate credit risk premia over spot Treasury curves.",
+  "asset_class": "fixed_income",
+  "schema": [
+    { "column": "date", "type": "TIMESTAMP" },
+    { "column": "spread", "type": "FLOAT32" }
+  ],
+  "etl": {
+    "engine": "duckdb-sql",
+    "source_api": "https://api.stlouisfed.org/fred/series/observations?series_id=BAMLH0A0HYM2&file_type=json",
+    "script": "WITH raw_data AS (SELECT UNNEST(observations) AS obs FROM read_json_auto('{{CORS_PROXY}}https://api.stlouisfed.org/fred/series/observations?series_id=BAMLH0A0HYM2&file_type=json&api_key={{FRED_API_KEY}}')) SELECT CAST(obs.date AS TIMESTAMP) AS date, CAST(NULLIF(obs.value, '.') AS FLOAT32) AS spread FROM raw_data WHERE obs.value != '.';"
+  }
+}

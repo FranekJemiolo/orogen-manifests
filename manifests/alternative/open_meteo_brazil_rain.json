@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/dataset.schema.json",
+  "id": "open-meteo-brazil-rain",
+  "name": "Open-Meteo Brazil Minas Gerais Historical Precipitation",
+  "description": "10 years of daily precipitation sum data for Minas Gerais, Brazil (primary coffee production basin) for agricultural drought modeling and commodity futures backtesting.",
+  "asset_class": "alternative",
+  "schema": [
+    { "column": "time", "type": "TIMESTAMP" },
+    { "column": "precipitation_sum", "type": "FLOAT32" }
+  ],
+  "etl": {
+    "engine": "duckdb-sql",
+    "source_api": "https://archive-api.open-meteo.com/v1/archive?latitude=-18.5122&longitude=-44.5550&start_date=2014-01-01&end_date=2024-01-01&daily=precipitation_sum&timezone=America%2FSao_Paulo",
+    "script": "SELECT CAST(UNNEST(daily.time) AS TIMESTAMP) AS time, CAST(UNNEST(daily.precipitation_sum) AS FLOAT) AS precipitation_sum FROM read_json_auto('https://archive-api.open-meteo.com/v1/archive?latitude=-18.5122&longitude=-44.5550&start_date=2014-01-01&end_date=2024-01-01&daily=precipitation_sum&timezone=America%2FSao_Paulo');"
+  }
+}
