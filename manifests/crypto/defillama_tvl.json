@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/dataset.schema.json",
+  "id": "defillama-tvl-flows",
+  "name": "DeFi Llama Global Total Value Locked (TVL)",
+  "description": "Historical daily Total Value Locked (TVL) in USD across all blockchains from the open DeFi Llama API, tracking macro decentralized liquidity flows.",
+  "asset_class": "crypto",
+  "schema": [
+    { "column": "date", "type": "TIMESTAMP" },
+    { "column": "totalLiquidityUSD", "type": "FLOAT64" }
+  ],
+  "etl": {
+    "engine": "duckdb-sql",
+    "source_api": "https://api.llama.fi/charts",
+    "script": "SELECT CAST(to_timestamp(CAST(date AS BIGINT)) AS TIMESTAMP) AS date, CAST(totalLiquidityUSD AS FLOAT64) AS totalLiquidityUSD FROM read_json_auto('https://api.llama.fi/charts');"
+  }
+}

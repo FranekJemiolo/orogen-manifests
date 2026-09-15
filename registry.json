@@ -1,0 +1,240 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-09-15T21:17:41.393Z",
+  "total_datasets": 8,
+  "datasets": [
+    {
+      "id": "pl-outdoor-furniture-pricing",
+      "name": "Warsaw Outdoor Furniture Retail Pricing Tracker",
+      "description": "Localized alternative economic indicator scraping retail garden and outdoor furniture in the Warsaw region, cleaning European number formats and currency symbols.",
+      "asset_class": "alternative",
+      "columns": [
+        {
+          "name": "date",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "item_name",
+          "type": "UTF8"
+        },
+        {
+          "name": "price_pln",
+          "type": "FLOAT32"
+        }
+      ],
+      "etl": {
+        "engine": "pyodide-python",
+        "source_api": "https://www.example-polish-retailer.pl/kategoria/meble-ogrodowe?lokalizacja=warszawa",
+        "requirements": [
+          "beautifulsoup4",
+          "requests",
+          "pandas",
+          "pyarrow"
+        ]
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/alternative/pl_outdoor_furniture_pricing.json"
+    },
+    {
+      "id": "binance-btc-1m",
+      "name": "Binance BTC/USDT 1-Minute Candlesticks",
+      "description": "High-volume 1-minute OHLCV k-line data for BTC/USDT, paginated with timestamp shifting and rate-limit backoffs.",
+      "asset_class": "alternative",
+      "columns": [
+        {
+          "name": "timestamp",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "open",
+          "type": "FLOAT64"
+        },
+        {
+          "name": "high",
+          "type": "FLOAT64"
+        },
+        {
+          "name": "low",
+          "type": "FLOAT64"
+        },
+        {
+          "name": "close",
+          "type": "FLOAT64"
+        },
+        {
+          "name": "volume",
+          "type": "FLOAT64"
+        }
+      ],
+      "etl": {
+        "engine": "pyodide-python",
+        "source_api": "https://api.binance.com/api/v3/klines",
+        "requirements": [
+          "pyarrow",
+          "requests"
+        ]
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/crypto/binance_btc_1m.json"
+    },
+    {
+      "id": "defillama-tvl-flows",
+      "name": "DeFi Llama Global Total Value Locked (TVL)",
+      "description": "Historical daily Total Value Locked (TVL) in USD across all blockchains from the open DeFi Llama API, tracking macro decentralized liquidity flows.",
+      "asset_class": "crypto",
+      "columns": [
+        {
+          "name": "date",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "totalLiquidityUSD",
+          "type": "FLOAT64"
+        }
+      ],
+      "etl": {
+        "engine": "duckdb-sql",
+        "source_api": "https://api.llama.fi/charts",
+        "requirements": []
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/crypto/defillama_tvl.json"
+    },
+    {
+      "id": "yfinance-spy-daily",
+      "name": "S&P 500 ETF (SPY) 10-Year Daily History",
+      "description": "10 years of daily OHLCV bar data for the SPDR S&P 500 ETF Trust, extracted from Yahoo Finance via Pyodide with CORS proxy routing.",
+      "asset_class": "equities",
+      "columns": [
+        {
+          "name": "Date",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "Open",
+          "type": "FLOAT64"
+        },
+        {
+          "name": "High",
+          "type": "FLOAT64"
+        },
+        {
+          "name": "Low",
+          "type": "FLOAT64"
+        },
+        {
+          "name": "Close",
+          "type": "FLOAT64"
+        },
+        {
+          "name": "Volume",
+          "type": "FLOAT64"
+        }
+      ],
+      "etl": {
+        "engine": "pyodide-python",
+        "source_api": "https://query2.finance.yahoo.com/v8/finance/chart/SPY",
+        "requirements": [
+          "pandas",
+          "yfinance",
+          "pyarrow",
+          "requests"
+        ]
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/equities/yfinance_spy_daily.json"
+    },
+    {
+      "id": "sec-edgar-aapl",
+      "name": "Apple Inc. (AAPL) SEC EDGAR 10-Q/10-K Fundamentals",
+      "description": "Standardized quarterly corporate fundamentals (NetIncomeLoss and Revenues) extracted directly from the US SEC EDGAR XBRL company facts API with User-Agent header injection.",
+      "asset_class": "fundamentals",
+      "columns": [
+        {
+          "name": "date",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "revenues",
+          "type": "FLOAT64"
+        },
+        {
+          "name": "net_income",
+          "type": "FLOAT64"
+        }
+      ],
+      "etl": {
+        "engine": "pyodide-python",
+        "source_api": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json",
+        "requirements": [
+          "requests",
+          "pandas",
+          "pyarrow"
+        ]
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/fundamentals/sec_edgar_aapl.json"
+    },
+    {
+      "id": "fred-t10y2y-spread",
+      "name": "FRED 10-Year Minus 2-Year Treasury Yield Spread",
+      "description": "Daily yield curve spread between 10-Year and 2-Year US Treasury constant maturities. Used as a primary indicator for macroeconomic recession forecasting.",
+      "asset_class": "macro",
+      "columns": [
+        {
+          "name": "date",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "spread",
+          "type": "FLOAT32"
+        }
+      ],
+      "etl": {
+        "engine": "duckdb-sql",
+        "source_api": "https://api.stlouisfed.org/fred/series/observations?series_id=T10Y2Y&file_type=json",
+        "requirements": []
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/macro/fred_yield_curve.json"
+    },
+    {
+      "id": "nbp-eur-pln-daily",
+      "name": "NBP EUR/PLN Daily Exchange Rate",
+      "description": "255 days of historical daily midpoint exchange rates for the Euro against the Polish Zloty, sourced directly from the National Bank of Poland.",
+      "asset_class": "macro",
+      "columns": [
+        {
+          "name": "date",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "rate",
+          "type": "FLOAT32"
+        }
+      ],
+      "etl": {
+        "engine": "duckdb-sql",
+        "source_api": "http://api.nbp.pl/api/exchangerates/rates/a/eur/last/255/?format=json",
+        "requirements": []
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/macro/nbp_eur_pln.json"
+    },
+    {
+      "id": "wiki-recession-views",
+      "name": "Wikipedia \"Recession\" Attention & Pageview Index",
+      "description": "Daily pageviews of the English Wikipedia article 'Recession' over 5 years, tracking retail curiosity as a leading proxy for economic sentiment and market volatility.",
+      "asset_class": "sentiment",
+      "columns": [
+        {
+          "name": "date",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "views",
+          "type": "FLOAT32"
+        }
+      ],
+      "etl": {
+        "engine": "duckdb-sql",
+        "source_api": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents/Recession/daily/20190101/20240101",
+        "requirements": []
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/sentiment/wiki_recession_views.json"
+    }
+  ]
+}

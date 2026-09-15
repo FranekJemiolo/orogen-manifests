@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schemas/dataset.schema.json",
+  "id": "wiki-recession-views",
+  "name": "Wikipedia \"Recession\" Attention & Pageview Index",
+  "description": "Daily pageviews of the English Wikipedia article 'Recession' over 5 years, tracking retail curiosity as a leading proxy for economic sentiment and market volatility.",
+  "asset_class": "sentiment",
+  "schema": [
+    { "column": "date", "type": "TIMESTAMP" },
+    { "column": "views", "type": "FLOAT32" }
+  ],
+  "etl": {
+    "engine": "duckdb-sql",
+    "source_api": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents/Recession/daily/20190101/20240101",
+    "script": "WITH raw_data AS (SELECT UNNEST(items) AS item FROM read_json_auto('https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents/Recession/daily/20190101/20240101')) SELECT CAST(strptime(item.timestamp, '%Y%m%d%H') AS TIMESTAMP) AS date, CAST(item.views AS FLOAT32) AS views FROM raw_data;"
+  }
+}

@@ -86,5 +86,9 @@ const registryPayload = {
 const outputPath = join(distDir, 'registry.json');
 writeFileSync(outputPath, JSON.stringify(registryPayload, null, 2));
 
+const rootOutputPath = resolve(rootDir, 'registry.json');
+writeFileSync(rootOutputPath, JSON.stringify(registryPayload, null, 2));
+
 console.log(`\nSuccessfully compiled registry index with ${registryItems.length} datasets.`);
 console.log(`Output: ${outputPath}`);
+console.log(`Root Index: ${rootOutputPath}`);
