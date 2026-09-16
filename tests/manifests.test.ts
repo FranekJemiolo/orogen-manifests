@@ -176,6 +176,74 @@ describe('Orogen Data Connectors Manifest Test Suite', () => {
     expect(manifest.etl.script).toContain('UNNEST(daily.precipitation_sum)');
     expect(manifest.etl.script).toContain('FLOAT');
   });
+
+  it('validates Sentinel-2 satellite observation manifest (sentinel2_l2a_earth_search.json)', () => {
+    const manifest = loadManifest('manifests/satellite/sentinel2_l2a_earth_search.json');
+    const valid = validate(manifest);
+    expect(validate.errors).toBeNull();
+    expect(valid).toBe(true);
+    expect(manifest.asset_class).toBe('satellite');
+    expect(manifest.etl.engine).toBe('duckdb-sql');
+    expect(manifest.etl.script).toContain('UNNEST(features)');
+    expect(manifest.etl.script).toContain('eo:cloud_cover');
+    expect(manifest.etl.script).toContain('thumbnail_url');
+  });
+
+  it('validates NASA Earth Observatory satellite events manifest (nasa_earth_observatory.json)', () => {
+    const manifest = loadManifest('manifests/satellite/nasa_earth_observatory.json');
+    const valid = validate(manifest);
+    expect(validate.errors).toBeNull();
+    expect(valid).toBe(true);
+    expect(manifest.asset_class).toBe('satellite');
+    expect(manifest.etl.engine).toBe('pyodide-python');
+    expect(manifest.etl.requirements).toContain('requests');
+    expect(manifest.etl.requirements).toContain('pandas');
+    expect(manifest.etl.requirements).toContain('pyarrow');
+    expect(manifest.etl.script).toContain('ET.fromstring');
+    expect(manifest.etl.script).toContain('Uint8Array.new');
+  });
+
+  it('validates Federal Reserve press releases news manifest (fed_press_releases.json)', () => {
+    const manifest = loadManifest('manifests/news/fed_press_releases.json');
+    const valid = validate(manifest);
+    expect(validate.errors).toBeNull();
+    expect(valid).toBe(true);
+    expect(manifest.asset_class).toBe('news');
+    expect(manifest.etl.engine).toBe('pyodide-python');
+    expect(manifest.etl.requirements).toContain('requests');
+    expect(manifest.etl.requirements).toContain('pandas');
+    expect(manifest.etl.requirements).toContain('pyarrow');
+    expect(manifest.etl.script).toContain('ET.fromstring');
+    expect(manifest.etl.script).toContain('Uint8Array.new');
+  });
+
+  it('validates SEC EDGAR filings stream news manifest (sec_edgar_filings_stream.json)', () => {
+    const manifest = loadManifest('manifests/news/sec_edgar_filings_stream.json');
+    const valid = validate(manifest);
+    expect(validate.errors).toBeNull();
+    expect(valid).toBe(true);
+    expect(manifest.asset_class).toBe('news');
+    expect(manifest.etl.engine).toBe('pyodide-python');
+    expect(manifest.etl.requirements).toContain('requests');
+    expect(manifest.etl.requirements).toContain('pandas');
+    expect(manifest.etl.requirements).toContain('pyarrow');
+    expect(manifest.etl.script).toContain('User-Agent');
+    expect(manifest.etl.script).toContain('atom:entry');
+    expect(manifest.etl.script).toContain('Uint8Array.new');
+  });
+
+  it('validates Real-Time Market Sentiment News manifest (market_sentiment_news.json)', () => {
+    const manifest = loadManifest('manifests/news/market_sentiment_news.json');
+    const valid = validate(manifest);
+    expect(validate.errors).toBeNull();
+    expect(valid).toBe(true);
+    expect(manifest.asset_class).toBe('news');
+    expect(manifest.etl.engine).toBe('duckdb-sql');
+    expect(manifest.etl.script).toContain('UNNEST(hits)');
+    expect(manifest.etl.script).toContain('score');
+    expect(manifest.etl.script).toContain('comment_count');
+  });
 });
+
 
 

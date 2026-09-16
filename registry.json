@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "generated_at": "2026-09-15T21:32:31.601Z",
-  "total_datasets": 13,
+  "generated_at": "2026-09-16T06:11:03.836Z",
+  "total_datasets": 18,
   "datasets": [
     {
       "id": "open-meteo-brazil-rain",
@@ -339,6 +339,164 @@
         "requirements": []
       },
       "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/macro/wb_global_gdp.json"
+    },
+    {
+      "id": "fed-press-releases",
+      "name": "Federal Reserve Press Releases & Monetary Statements",
+      "description": "Official real-time press releases, FOMC policy statements, and regulatory decisions from the Federal Reserve Board of Governors RSS news stream.",
+      "asset_class": "news",
+      "columns": [
+        {
+          "name": "date",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "title",
+          "type": "UTF8"
+        },
+        {
+          "name": "link",
+          "type": "UTF8"
+        }
+      ],
+      "etl": {
+        "engine": "pyodide-python",
+        "source_api": "https://www.federalreserve.gov/feeds/press_all.xml",
+        "requirements": [
+          "requests",
+          "pandas",
+          "pyarrow"
+        ]
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/news/fed_press_releases.json"
+    },
+    {
+      "id": "market-sentiment-news",
+      "name": "Real-Time Tech & Market Sentiment News Stream",
+      "description": "High-velocity technology, venture, and market sentiment news stream with engagement score, comments, timestamps, and URLs from Algolia News API.",
+      "asset_class": "news",
+      "columns": [
+        {
+          "name": "published_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "headline",
+          "type": "UTF8"
+        },
+        {
+          "name": "score",
+          "type": "FLOAT32"
+        },
+        {
+          "name": "comment_count",
+          "type": "FLOAT32"
+        },
+        {
+          "name": "article_url",
+          "type": "UTF8"
+        }
+      ],
+      "etl": {
+        "engine": "duckdb-sql",
+        "source_api": "https://hn.algolia.com/api/v1/search_by_date?tags=story&hitsPerPage=100",
+        "requirements": []
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/news/market_sentiment_news.json"
+    },
+    {
+      "id": "sec-edgar-filings-stream",
+      "name": "SEC EDGAR Real-Time Corporate Filings Stream",
+      "description": "Real-time material corporate disclosure filings (Form 8-K, 10-K, 10-Q) from the US SEC EDGAR Atom service with User-Agent injection.",
+      "asset_class": "news",
+      "columns": [
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "title",
+          "type": "UTF8"
+        },
+        {
+          "name": "filing_url",
+          "type": "UTF8"
+        }
+      ],
+      "etl": {
+        "engine": "pyodide-python",
+        "source_api": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&CIK=&type=&company=&dateb=&owner=include&start=0&count=100&output=atom",
+        "requirements": [
+          "requests",
+          "pandas",
+          "pyarrow"
+        ]
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/news/sec_edgar_filings_stream.json"
+    },
+    {
+      "id": "nasa-earth-observatory",
+      "name": "NASA Earth Observatory Satellite Natural Events Feed",
+      "description": "Daily satellite remote sensing of global environmental events, droughts, wildfire anomalies, and commodity disruptions directly from NASA Earth Observatory.",
+      "asset_class": "satellite",
+      "columns": [
+        {
+          "name": "date",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "title",
+          "type": "UTF8"
+        },
+        {
+          "name": "article_url",
+          "type": "UTF8"
+        }
+      ],
+      "etl": {
+        "engine": "pyodide-python",
+        "source_api": "https://earthobservatory.nasa.gov/feeds/earth-observatory.rss",
+        "requirements": [
+          "requests",
+          "pandas",
+          "pyarrow"
+        ]
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/satellite/nasa_earth_observatory.json"
+    },
+    {
+      "id": "sentinel2-l2a-earth-search",
+      "name": "Sentinel-2 Multispectral Satellite Earth Observation Catalog",
+      "description": "Real-time optical multispectral satellite imagery metadata and preview tiles from ESA Copernicus Sentinel-2 via AWS Earth Search STAC API for supply chain, port congestion, and crop monitoring.",
+      "asset_class": "satellite",
+      "columns": [
+        {
+          "name": "acquired_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "scene_id",
+          "type": "UTF8"
+        },
+        {
+          "name": "cloud_cover",
+          "type": "FLOAT32"
+        },
+        {
+          "name": "grid_code",
+          "type": "UTF8"
+        },
+        {
+          "name": "thumbnail_url",
+          "type": "UTF8"
+        }
+      ],
+      "etl": {
+        "engine": "duckdb-sql",
+        "source_api": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items?limit=100",
+        "requirements": []
+      },
+      "manifest_url": "https://raw.githubusercontent.com/FranekJemiolo/orogen-manifests/main/manifests/satellite/sentinel2_l2a_earth_search.json"
     },
     {
       "id": "wiki-recession-views",

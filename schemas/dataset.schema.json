@@ -15,7 +15,7 @@
     },
     "asset_class": {
       "type": "string",
-      "enum": ["macro", "equities", "fixed_income", "alternative", "crypto", "fundamentals", "sentiment", "fx", "commodities"]
+      "enum": ["macro", "equities", "fixed_income", "alternative", "crypto", "fundamentals", "sentiment", "fx", "commodities", "satellite", "news"]
     },
     "schema": {
       "type": "array",

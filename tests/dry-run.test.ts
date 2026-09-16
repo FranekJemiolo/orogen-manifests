@@ -178,4 +178,71 @@ describe('Dry-Run DuckDB ETL Test Suite with Mock Payloads', () => {
     expect(typeof rows[0].totalLiquidityUSD).toBe('number');
     expect(rows[0].totalLiquidityUSD).toBe(45000000000.0);
   });
+
+  it('executes Sentinel-2 satellite observation dry-run', async () => {
+    const manifest = loadManifest('manifests/satellite/sentinel2_l2a_earth_search.json');
+    const mockFile = join(mockDir, 'sentinel_mock.json');
+    const mockData = {
+      features: [
+        {
+          id: 'S2B_50UPE_20260916_0_L2A',
+          properties: {
+            datetime: '2026-09-16T03:22:48Z',
+            'eo:cloud_cover': 43.8,
+            'grid:code': 'MGRS-50UPE',
+          },
+          assets: {
+            thumbnail: {
+              href: 'https://sentinel-cogs.s3.us-west-2.amazonaws.com/preview.jpg',
+            },
+          },
+        },
+      ],
+    };
+    writeFileSync(mockFile, JSON.stringify(mockData));
+
+    const sql = manifest.etl.script.replace(
+      manifest.etl.source_api,
+      mockFile
+    );
+    const rows = await executeQuery(sql);
+
+    expect(rows.length).toBe(1);
+    expect(rows[0].scene_id).toBe('S2B_50UPE_20260916_0_L2A');
+    expect(rows[0].acquired_at instanceof Date).toBe(true);
+    expect(rows[0].cloud_cover).toBeCloseTo(43.8, 1);
+    expect(rows[0].grid_code).toBe('MGRS-50UPE');
+    expect(rows[0].thumbnail_url).toContain('preview.jpg');
+  });
+
+  it('executes Real-Time Market Sentiment News dry-run', async () => {
+    const manifest = loadManifest('manifests/news/market_sentiment_news.json');
+    const mockFile = join(mockDir, 'hn_news_mock.json');
+    const mockData = {
+      hits: [
+        {
+          created_at: '2026-09-16T06:00:00Z',
+          title: 'Federal Reserve Monetary Policy Announcement',
+          points: 380,
+          num_comments: 95,
+          url: 'https://example.com/fed-policy',
+        },
+      ],
+    };
+    writeFileSync(mockFile, JSON.stringify(mockData));
+
+    const sql = manifest.etl.script.replace(
+      manifest.etl.source_api,
+      mockFile
+    );
+    const rows = await executeQuery(sql);
+
+    expect(rows.length).toBe(1);
+    expect(rows[0].published_at instanceof Date).toBe(true);
+    expect(rows[0].headline).toContain('Federal Reserve');
+    expect(rows[0].score).toBe(380);
+    expect(rows[0].comment_count).toBe(95);
+    expect(rows[0].article_url).toBe('https://example.com/fed-policy');
+  });
 });
+

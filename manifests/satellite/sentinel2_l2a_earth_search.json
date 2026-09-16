@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/dataset.schema.json",
+  "id": "sentinel2-l2a-earth-search",
+  "name": "Sentinel-2 Multispectral Satellite Earth Observation Catalog",
+  "description": "Real-time optical multispectral satellite imagery metadata and preview tiles from ESA Copernicus Sentinel-2 via AWS Earth Search STAC API for supply chain, port congestion, and crop monitoring.",
+  "asset_class": "satellite",
+  "schema": [
+    { "column": "acquired_at", "type": "TIMESTAMP" },
+    { "column": "scene_id", "type": "UTF8" },
+    { "column": "cloud_cover", "type": "FLOAT32" },
+    { "column": "grid_code", "type": "UTF8" },
+    { "column": "thumbnail_url", "type": "UTF8" }
+  ],
+  "etl": {
+    "engine": "duckdb-sql",
+    "source_api": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items?limit=100",
+    "script": "WITH features_raw AS (SELECT UNNEST(features) AS feat FROM read_json_auto('https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items?limit=100')) SELECT CAST(feat.properties.datetime AS TIMESTAMP) AS acquired_at, CAST(feat.id AS VARCHAR) AS scene_id, CAST(feat.properties.\"eo:cloud_cover\" AS FLOAT) AS cloud_cover, CAST(feat.properties.\"grid:code\" AS VARCHAR) AS grid_code, CAST(feat.assets.thumbnail.href AS VARCHAR) AS thumbnail_url FROM features_raw;"
+  }
+}

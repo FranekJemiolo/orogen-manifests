@@ -1,0 +1,19 @@
+{
+  "$schema": "../../schemas/dataset.schema.json",
+  "id": "market-sentiment-news",
+  "name": "Real-Time Tech & Market Sentiment News Stream",
+  "description": "High-velocity technology, venture, and market sentiment news stream with engagement score, comments, timestamps, and URLs from Algolia News API.",
+  "asset_class": "news",
+  "schema": [
+    { "column": "published_at", "type": "TIMESTAMP" },
+    { "column": "headline", "type": "UTF8" },
+    { "column": "score", "type": "FLOAT32" },
+    { "column": "comment_count", "type": "FLOAT32" },
+    { "column": "article_url", "type": "UTF8" }
+  ],
+  "etl": {
+    "engine": "duckdb-sql",
+    "source_api": "https://hn.algolia.com/api/v1/search_by_date?tags=story&hitsPerPage=100",
+    "script": "WITH raw_hits AS (SELECT UNNEST(hits) AS hit FROM read_json_auto('https://hn.algolia.com/api/v1/search_by_date?tags=story&hitsPerPage=100')) SELECT CAST(hit.created_at AS TIMESTAMP) AS published_at, CAST(hit.title AS VARCHAR) AS headline, CAST(hit.points AS FLOAT) AS score, CAST(hit.num_comments AS FLOAT) AS comment_count, CAST(COALESCE(hit.url, '') AS VARCHAR) AS article_url FROM raw_hits;"
+  }
+}
